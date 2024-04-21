@@ -3,6 +3,7 @@ from flask import Flask, render_template
 from configs import config
 from pear_admin.apis import register_apis
 from pear_admin.extensions import register_extensions
+from pear_admin.orms import DepartmentORM
 from pear_admin.views import register_views
 
 

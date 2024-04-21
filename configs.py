@@ -5,13 +5,16 @@ class BaseConfig:
     SECRET_KEY = os.getenv("SECRET_KEY", "pear-admin-flask")
 
     SQLALCHEMY_DATABASE_URI = ""
+    ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 class DevelopmentConfig(BaseConfig):
     """开发配置"""
 
-    SQLALCHEMY_DATABASE_URI = "sqlite:///pear_admin.db"
+    # SQLALCHEMY_DATABASE_URI = "sqlite:///pear_admin.db"
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:root@127.0.0.1:3306/pear_admin"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # SQLALCHEMY_ECHO = True
 
 
 class TestingConfig(BaseConfig):
