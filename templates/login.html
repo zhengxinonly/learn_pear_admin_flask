@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -40,7 +40,7 @@
                     src="http://www.layui-vue.com/assets/logo.685dda16.jpg"
                     alt=""
                   />
-                  <span>Pear Admin 4.0</span>
+                  <span>Pear Admin Flask</span>
                 </div>
                 <div class="top-desc">
                   以 超 乎 想 象 的 速 度 构 建 内 部 工 具
@@ -53,7 +53,9 @@
                       </div>
                       <input
                         lay-verify="required"
+                        name="username"
                         placeholder="账户"
+                        value="正心全栈编程"
                         autocomplete="off"
                         class="layui-input"
                       />
@@ -66,8 +68,8 @@
                       </div>
                       <input
                         type="password"
-                        name="confirmPassword"
-                        value=""
+                        name="password"
+                        value="123456"
                         lay-verify="required|confirmPassword"
                         placeholder="密码"
                         autocomplete="off"
@@ -75,27 +77,6 @@
                         lay-affix="eye"
                       />
                     </div>
-                  </div>
-                  <div class="tab-log-verification">
-                    <div class="verification-text">
-                      <div class="layui-input-wrap">
-                        <div class="layui-input-prefix">
-                          <i class="layui-icon layui-icon-auz"></i>
-                        </div>
-                        <input
-                          lay-verify="required"
-                          value="VBJFQ"
-                          placeholder="验证码"
-                          autocomplete="off"
-                          class="layui-input"
-                        />
-                      </div>
-                    </div>
-                    <img
-                      src="/static/admin/images/captcha.gif"
-                      alt=""
-                      class="verification-img"
-                    />
                   </div>
                   <div class="layui-form-item">
                     <div class="remember-passsword">
@@ -113,7 +94,7 @@
                     <button
                       type="button"
                       lay-submit
-                      lay-filter="login"
+                      lay-filter="login-in"
                       class="layui-btn login"
                     >
                       登 录
@@ -138,23 +119,50 @@
         var form = layui.form;
         var button = layui.button;
         var popup = layui.popup;
+        var $ = layui.$;
 
         // 登 录 提 交
-        form.on("submit(login)", function (data) {
+        form.on("submit(login-in)", function (data) {
           /// 验证
-
+          console.log(data);
           /// 登录
+          let btn = button.load({ elem: ".login" });
 
-          /// 动画
-          button.load({
-            elem: ".login",
-            time: 1500,
-            done: function () {
-              popup.success("登录成功", function () {
-                location.href = "./index.html";
+          $.ajax({
+            url: "/api/v1/login",
+            type: "POST",
+            data: JSON.stringify(data.field),
+            contentType: "application/json",
+            success: function (data) {
+              // 登录成功之后
+              btn.stop(function () {
+                // TODO 将服务器传递的 token 保存到本地
+                localStorage.setItem("access_token", data.access_token);
+                localStorage.setItem("refresh_token", data.refresh_token);
+
+                // 停止按钮之后
+                popup.success("登录成功", function () {
+                  location.href = "/";
+                });
+              });
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              btn.stop(function () {
+                // 停止按钮之后
+                popup.failure(XMLHttpRequest.responseJSON.message);
               });
             },
           });
+          /// 动画
+          // button.load({
+          //   elem: ".login",
+          //   time: 1500,
+          //   done: function () {
+          //     popup.success("登录成功", function () {
+          //       // location.href = "./index.html";
+          //     });
+          //   },
+          // });
 
           return false;
         });

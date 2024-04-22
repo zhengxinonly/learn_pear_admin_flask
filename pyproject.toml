@@ -10,6 +10,7 @@ python = "^3.10"
 flask = "^3.0.3"
 flask-migrate = "^4.0.7"
 pymysql = "^1.1.0"
+flask-jwt-extended = "^4.6.0"
 
 
 [tool.poetry.group.dev.dependencies]

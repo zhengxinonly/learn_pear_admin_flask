@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Pear Admin 4.0</title>
+    <title>Pear Admin Flask</title>
     <meta charset="utf-8" />
     <meta
       name="viewport"
@@ -117,6 +117,24 @@
         var admin = layui.admin;
         var popup = layui.popup;
         var $ = layui.jquery;
+        // 让所有的 ajax 请求都携带请求头
+        $.ajaxSetup({
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("access_token"),
+          },
+        });
+        // 请求后端
+        $.ajax({
+          type: "GET",
+          url: "/api/v1/user/profile",
+          success: function (data) {
+            // 成功之后可以将加载的用户数据保存到本地
+            console.log(data);
+          },
+          error: function (error) {
+            location.href = "/login.html";
+          },
+        });
 
         // yml | json | api
         admin.setConfigurationPath("/static/config/pear.config.json");
@@ -127,7 +145,21 @@
         // 注销
         admin.logout(function () {
           popup.success("注销成功", function () {
-            location.href = "./login.html";
+            $.ajax({
+              url: "/api/v1/logout",
+              type: "POST",
+              success: function (data) {
+                console.log(data);
+                if (data.code === 0) {
+                  // 清空 token 信息
+                  localStorage.removeItem("access_token");
+                  localStorage.removeItem("refresh_token");
+                  setTimeout(function () {
+                    location.href = "/login.html";
+                  }, 1000);
+                }
+              },
+            });
           });
 
           // 清空 tabs 缓存

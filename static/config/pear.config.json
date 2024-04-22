@@ -4,7 +4,7 @@
     "image": "/static/admin/images/logo.png"
   },
   "menu": {
-    "data": "/static/admin/data/menu.json",
+    "data": "/api/v1/menu",
     "method": "GET",
     "accordion": true,
     "collapse": false,

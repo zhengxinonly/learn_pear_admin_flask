@@ -2,3 +2,4 @@
 .venv/
 *.py[cod]
 migrations/
+node_modules
