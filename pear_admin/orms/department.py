@@ -16,3 +16,12 @@ class DepartmentORM(BaseORM):
 
     parent = relationship("DepartmentORM", back_populates="children", remote_side=[id])
     children = relationship("DepartmentORM", back_populates="parent")
+
+    def json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "leader": self.leader,
+            "enable": self.enable,
+            "pid": self.pid,
+        }

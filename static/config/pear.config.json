@@ -10,7 +10,7 @@
     "collapse": false,
     "control": false,
     "controlWidth": 500,
-    "select": "10",
+    "select": "126",
     "async": true
   },
   "tab": {
@@ -20,13 +20,13 @@
     "preload": false,
     "max": "30",
     "index": {
-      "id": "10",
-      "href": "view/console/index.html",
+      "id": "126",
+      "href": "/view/analysis/index.html",
       "title": "首页"
     }
   },
   "theme": {
-    "defaultColor": "2",
+    "defaultColor": "1",
     "defaultMenu": "dark-theme",
     "defaultHeader": "light-theme",
     "allowCustom": true,
@@ -35,7 +35,7 @@
   "colors": [
     {
       "id": "1",
-      "color": "#2d8cf0",
+      "color": "#16baaa",
       "second": "#ecf5ff"
     },
     {

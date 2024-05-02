@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>部门管理</title>
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+  </head>
+  <body>
+    <div style="padding: 16px">
+      <div class="layui-panel" style="padding: 12px">
+        <table
+          class="layui-hide"
+          id="department-treeTable"
+          lay-filter="department-treeTable"
+        ></table>
+      </div>
+    </div>
+
+    <form
+      class="layui-form"
+      lay-filter="department-form"
+      id="department-form"
+      action=""
+      style="padding: 15px; display: none"
+    >
+      <div class="layui-form-item">
+        <label class="layui-form-label">ID</label>
+        <div class="layui-input-block">
+          <input
+            type="text"
+            name="id"
+            value="0"
+            lay-verify="required"
+            autocomplete="off"
+            class="layui-input"
+            disabled
+          />
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">部门名</label>
+        <div class="layui-input-block">
+          <input
+            type="text"
+            name="name"
+            placeholder="请输入部门名"
+            lay-verify="required"
+            autocomplete="off"
+            class="layui-input"
+          />
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">负责人</label>
+        <div class="layui-input-block">
+          <input
+            type="text"
+            name="leader"
+            placeholder="请输入负责人"
+            lay-verify="required"
+            autocomplete="off"
+            class="layui-input"
+          />
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-block">
+          <input
+            type="checkbox"
+            name="enable"
+            lay-skin="switch"
+            autocomplete="off"
+            checked
+            title="启用|禁用"
+            class="layui-input"
+          />
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">上级部门ID</label>
+        <div class="layui-input-block">
+          <input
+            type="text"
+            name="pid"
+            value="0"
+            placeholder="请输入上级部门id"
+            autocomplete="off"
+            class="layui-input"
+          />
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <div class="layui-input-block">
+          <button
+            type="submit"
+            class="layui-btn"
+            lay-submit
+            lay-filter="department-form-btn"
+          >
+            立即提交
+          </button>
+          <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+      </div>
+    </form>
+  </body>
+
+  <script type="text/html" id="department-toolbar">
+    <div class="layui-btn-container">
+      <button class="layui-btn layui-btn-sm" lay-event="department-toolbar-add">
+        新增部门
+      </button>
+    </div>
+  </script>
+
+  <script type="text/html" id="department-tool">
+    <div class="layui-btn-container">
+      <button
+        class="layui-btn layui-btn-sm layui-bg-blue"
+        lay-event="department-tool-edit"
+      >
+        编辑
+      </button>
+      <button
+        class="layui-btn layui-btn-sm layui-bg-red"
+        lay-event="department-tool-del"
+      >
+        删除
+      </button>
+    </div>
+  </script>
+  <script>
+    layui.use(function () {
+      var treeTable = layui.treeTable;
+      var form = layui.form;
+      var layer = layui.layer;
+      var $ = layui.$;
+
+      treeTable.render({
+        elem: "#department-treeTable",
+        id: "department-treeTable",
+        url: "/api/v1/department/treetable",
+
+        maxHeight: "501px",
+        toolbar: "#department-toolbar",
+        cols: [
+          [
+            { type: "checkbox" },
+            { field: "id", title: "ID", width: 80, sort: true },
+            { field: "name", title: "公司名", width: 260 },
+            { field: "leader", title: "负责人", width: 120, sort: true },
+            { field: "enable", title: "可用", width: 90, sort: true },
+            {
+              fixed: "right",
+              title: "操作",
+              width: 190,
+              align: "center",
+              toolbar: "#department-tool",
+            },
+          ],
+        ],
+        page: true,
+      });
+
+      // 表头工具栏工具事件
+      treeTable.on("toolbar(department-treeTable)", function (obj) {
+        if (obj.event === "department-toolbar-add") {
+          layer.open({
+            type: 1,
+            shade: false,
+            content: $("#department-form"),
+            area: ["50%", "80%"],
+          });
+          form.render($("#department-form"));
+        }
+      });
+
+      treeTable.on("tool(department-treeTable)", function (obj) {
+        console.log(obj);
+        if (obj.event === "department-tool-edit") {
+          form.val("department-form", obj.data);
+          layer.open({
+            type: 1,
+            shade: false,
+            content: $("#department-form"),
+            area: ["50%", "80%"],
+          });
+          form.render($("#department-form"));
+        } else if (obj.event === "department-tool-del") {
+          $.ajax({
+            url: `/api/v1/department/${obj.data.id}`,
+            type: "DELETE",
+            contentType: "application/json",
+            success: function (res) {
+              if (!res.code) {
+                treeTable.reloadData("department-treeTable");
+              }
+            },
+          });
+        }
+      });
+
+      form.on("submit(department-form-btn)", function (data) {
+        let field = data.field;
+        field.enable = field.enable === "on";
+        let method, url;
+        if (field.id == 0) {
+          field.id = null;
+          method = "POST";
+          url = "/api/v1/department";
+        } else {
+          method = "PUT";
+          url = `/api/v1/department/${field.id}`;
+        }
+
+        $.ajax({
+          url: url,
+          type: method,
+          contentType: "application/json",
+          data: JSON.stringify(field),
+          success: function (res) {
+            if (!res.code) {
+              layer.closeAll();
+              treeTable.reloadData("department-treeTable");
+            }
+          },
+        });
+        return false;
+      });
+    });
+  </script>
+</html>

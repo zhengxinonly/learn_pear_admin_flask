@@ -74,5 +74,4 @@ def get_menu():
             menu_dict_list[menu_dict["pid"]] = [menu_dict]
         else:
             menu_dict_list[menu_dict["pid"]].append(menu_dict)
-
     return sorted(menu_dict_list.get(0), key=lambda item: item["sort"])
