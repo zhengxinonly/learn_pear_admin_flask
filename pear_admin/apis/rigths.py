@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from flask import Blueprint, request
 from flask_jwt_extended import current_user, jwt_required
 
@@ -35,6 +37,35 @@ def get_list_as_treetable():
             data["isParent"] = True
         ret.append(data)
     return {"code": 0, "message": "获取数据成功", "data": ret}
+
+
+@rights_api.get("/rights/tree")
+@jwt_required()
+def rights_list():
+    # 1. 获取所有的权限
+    rights_all = db.session.execute(db.select(RightsORM)).scalars()
+    rights_list = [
+        {"id": r.id, "pid": r.pid, "title": r.name, "sort": r.sort} for r in rights_all
+    ]
+    # 2. 获取已有权限 id 集合
+    # 3. 列表转属性组件
+    rights_list.sort(key=lambda item: (item["pid"], item["id"]), reverse=True)
+    tree_dict = {}
+    for rights_dict in rights_list:  # 遍历子节点
+        # 2. 如果当前阶段已经存在于树状表格字典，则是父节点
+        if rights_dict["id"] in tree_dict.keys():
+            # 将之前的节点添加到父节点之下
+            rights_dict["children"] = deepcopy(tree_dict[rights_dict["id"]])
+            rights_dict["children"].sort(key=lambda item: item["sort"])
+            del tree_dict[rights_dict["id"]]
+
+        # 1. 如果父节点未出现在树状字典里面，就新增子节点列表，否则就追加
+        if rights_dict["pid"] not in tree_dict.keys():
+            tree_dict[rights_dict["pid"]] = [rights_dict]
+        else:
+            tree_dict[rights_dict["pid"]].append(rights_dict)
+
+    return {"code": 0, "data": tree_dict.get(0)}
 
 
 @rights_api.post("/rights")
